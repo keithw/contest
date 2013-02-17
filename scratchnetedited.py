@@ -62,6 +62,7 @@ def scratchNet( cname='controller', cargs='-v ptcp:' ):
         info( '.' )
     info( '\n' )
     h0.cmdPrint('ip link')
+    h1.cmdPrint('ip link')
     cellLink.cmdPrint('ip link')
     h0.cmdPrint('ifconfig h0-eth0 10.0.1.1 netmask 255.255.255.0')
     h1.cmdPrint('ifconfig h1-eth0 10.0.2.1 netmask 255.255.255.0')
@@ -69,6 +70,7 @@ def scratchNet( cname='controller', cargs='-v ptcp:' ):
     cellLink.cmdPrint('ifconfig cellLink-eth1 10.0.2.2 netmask 255.255.255.0')
     h0.cmdPrint('ping -c 5 10.0.1.2')
     h0.cmdPrint('route')
+    h1.cmdPrint('route')
     cellLink.cmdPrint('route')
 
    # info( "*** Running test\n" )
