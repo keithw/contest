@@ -17,9 +17,9 @@ class ProtoTester(Topo):
         s1 = self.addSwitch('s1')
         s2 = self.addSwitch('s2')
 
-  h1.setIP('10.0.1.1', 24)
-	h2.setIP('10.0.2.1', 24)
-	h3.setIP('10.0.3.1', 24)
+  	#h1.setIP('10.0.1.1', 24)
+	#h2.setIP('10.0.2.1', 24)
+	#h3.setIP('10.0.3.1', 24)
 
         # Add links
         self.addLink(h1, s1)
