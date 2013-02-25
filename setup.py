@@ -6,6 +6,7 @@ from mininet.node import Host
 from mininet.link import Link
 from mininet.cli import CLI
 from mininet.util import dumpNodeConnections
+from mininet.util import ensureRoot
 
 from subprocess import Popen, PIPE
 from time import sleep, time
@@ -13,6 +14,8 @@ from time import sleep, time
 import sys
 import os
 import math
+
+ensureRoot()
 
 #Topology to run cellSim
 #H1--S1--H2*--S2--H3
@@ -45,18 +48,10 @@ def set_all_IP(net, h1, h2, h3):
     h3.sendCmd('ifconfig h3-eth0 10.0.2.1 netmask 255.255.255.0')
     h3.waitOutput()
 
-def set_all_routes(net, h1, h2, h3):
-    h1.sendCmd("setHostRoute('h2', 'h1-eth0')")
+def add_default_routes(net, h1, h3):
+    h1.sendCmd('sudo route add default gw 10.0.2.1')
     h1.waitOutput()
-    h1.sendCmd("setHostRoute('h3', 'h1-eth0')")
-    h1.waitOutput()
-    h2.sendCmd("setHostRoute('h1', 'h2-eth0')")
-    h2.waitOutput()
-    h2.sendCmd("setHostRoute('h3', 'h2-eth1')")
-    h2.waitOutput()
-    h3.sedCmd("setHostRoute('h2', 'h3-eth0')")
-    h3.waitOutput()
-    h3.sendCmd("setHostRoute('h1', 'h3-eth0')")
+    h3.sendCmd('sudo route add default gw 10.0.2.2')
     h3.waitOutput()
 
 def run_cellsim(net):
@@ -101,7 +96,7 @@ def test_cellsim():
     h3 = net.getNodeByName('h3')
 
     set_all_IP(net, h1, h2, h3)
-##    set_all_routes(net, h1, h2, h3)
+    add_default_routes(net, h1, h3)
     
     #Dump connections
     dumpNodeConnections(net.hosts)
@@ -122,3 +117,4 @@ def test_cellsim():
 
 if __name__ == '__main__':
     test_cellsim()
+
