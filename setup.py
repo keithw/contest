@@ -24,9 +24,9 @@ class ProtoTester(Topo):
         Topo.__init__(self)
 
         # Add hosts and switches
-        sender = self.addHost('sender', ip='10.0.1.1')
+        sender = self.addHost('sender', ip='10.0.1.1', mac='00:00:00:00:00:01')
         LTE = self.addHost('LTE', ip='0.0.0.0')
-        receiver = self.addHost('receiver', ip='10.0.1.2')
+        receiver = self.addHost('receiver', ip='10.0.1.2', mac='00:00:00:00:00:02')
 
         s1 = self.addSwitch('s1')
         s2 = self.addSwitch('s2')
@@ -44,7 +44,7 @@ def set_all_IP(net, sender, LTE, receiver):
     LTE.waitOutput()
     LTE.sendCmd('ifconfig LTE-eth1 up')
     LTE.waitOutput()
-    receiver.sendCmd('ifconfig receiver-eth0 10.0.2.1 netmask 255.255.255.0')
+    receiver.sendCmd('ifconfig receiver-eth0 10.0.1.2 netmask 255.255.255.0')
     receiver.waitOutput()
 
     sender.sendCmd('echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6')
@@ -65,6 +65,12 @@ def display_routes(net, sender, LTE, receiver):
     receiver.sendCmd('route -n')
     print receiver.waitOutput()
 
+def run_cellsim(LTE):
+    LTE.sendCmd('/home/ubuntu/multisend/sender/cellsim-setup.sh LTE-eth0 LTE-eth1')
+    LTE.waitOutput()
+    LTE.sendCmd('/home/ubuntu/multisend/sender/cellsim-runner.sh')
+    LTE.waitOutput()
+
 def test_cellsim():
     topo = ProtoTester()
     net = Mininet(topo=topo, host=Host, link=Link)
@@ -79,6 +85,9 @@ def test_cellsim():
     #Dump connections
     dumpNodeConnections(net.hosts)
     display_routes(net, sender, LTE, receiver)
+
+    run_cellsim(LTE)
+
     CLI(net)
 
     net.stop()
