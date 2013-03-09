@@ -68,10 +68,27 @@ def display_routes(net, sender, LTE, receiver):
 def run_cellsim(LTE):
     LTE.sendCmd('/home/ubuntu/multisend/sender/cellsim-setup.sh LTE-eth0 LTE-eth1')
     LTE.waitOutput()
+    print "Running cellsim... "
     LTE.sendCmd('/home/ubuntu/multisend/sender/cellsim-runner.sh')
     LTE.waitOutput()
+    print "done."
 
-def test_cellsim():
+def run_datagrump(sender, receiver):
+    print "Running datagrump-receiver... ",
+    receiver.sendCmd('/home/ubuntu/datagrump/datagrump-receiver 9000 >/tmp/receiver-stdout 2>/tmp/receiver-stderr &')
+    receiver.waitOutput()
+    print "done."
+    print "Running datagrump-sender... ",
+    sender.sendCmd('/home/ubuntu/datagrump/datagrump-sender 10.0.1.2 9000 debug >/tmp/sender-stdout 2>/tmp/sender-stderr &')
+    sender.waitOutput()
+    print "done."
+
+def start_cellsim_topology():
+    os.system( "killall -q controller" )
+    os.system( "killall -q cellsim" )
+    os.system( "killall -q datagrump-sender" )
+    os.system( "killall -q datagrump-receiver" )
+
     topo = ProtoTester()
     net = Mininet(topo=topo, host=Host, link=Link)
     net.start()
@@ -86,11 +103,13 @@ def test_cellsim():
     dumpNodeConnections(net.hosts)
     display_routes(net, sender, LTE, receiver)
 
+    run_datagrump(sender, receiver)
+
     run_cellsim(LTE)
 
-    CLI(net)
+#    CLI(net)
 
     net.stop()
 
 if __name__ == '__main__':
-    test_cellsim()
+    start_cellsim_topology()
