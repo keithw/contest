@@ -68,7 +68,7 @@ def display_routes(net, sender, LTE, receiver):
 def run_cellsim(LTE):
     LTE.sendCmd('/home/ubuntu/multisend/sender/cellsim-setup.sh LTE-eth0 LTE-eth1')
     LTE.waitOutput()
-    print "Running cellsim... "
+    print "Running cellsim (this will take a few minutes)..."
     LTE.sendCmd('/home/ubuntu/multisend/sender/cellsim-runner.sh')
     LTE.waitOutput()
     print "done."
@@ -83,7 +83,21 @@ def run_datagrump(sender, receiver):
     sender.waitOutput()
     print "done."
 
+def print_welcome_message():
+    print "####################################################################"
+    print "#                                                                  #"
+    print "#               6.829 PS 2 Emulated Network Test                   #"
+    print "#                                                                  #"
+    print "#          running sender <=> cellsim <=> receiver                 #"
+    print "#                                                                  #"
+    print "#  Debug output in /tmp/{sender,receiver,cellsim}-{stdout,stderr}  #"
+    print "#                                                                  #"
+    print "####################################################################"
+    print
+
 def start_cellsim_topology():
+    print_welcome_message()
+
     os.system( "killall -q controller" )
     os.system( "killall -q cellsim" )
     os.system( "killall -q datagrump-sender" )
@@ -100,8 +114,8 @@ def start_cellsim_topology():
     set_all_IP(net, sender, LTE, receiver)
     
     #Dump connections
-    dumpNodeConnections(net.hosts)
-    display_routes(net, sender, LTE, receiver)
+    #dumpNodeConnections(net.hosts)
+    #display_routes(net, sender, LTE, receiver)
 
     run_datagrump(sender, receiver)
 
