@@ -14,6 +14,7 @@ from time import sleep, time
 import sys
 import os
 import math
+import requests
 
 ensureRoot()
 
@@ -74,11 +75,11 @@ def run_cellsim(LTE):
     print "done."
 
 def run_datagrump(sender, receiver):
-    print "Running datagrump-receiver... ",
+    print "Running datagrump-receiver...",
     receiver.sendCmd('/home/ubuntu/datagrump/datagrump-receiver 9000 >/tmp/receiver-stdout 2>/tmp/receiver-stderr &')
     receiver.waitOutput()
     print "done."
-    print "Running datagrump-sender... ",
+    print "Running datagrump-sender...",
     sender.sendCmd('/home/ubuntu/datagrump/datagrump-sender 10.0.1.2 9000 debug >/tmp/sender-stdout 2>/tmp/sender-stderr &')
     sender.waitOutput()
     print "done."
@@ -95,7 +96,7 @@ def print_welcome_message():
     print "####################################################################"
     print
 
-def start_cellsim_topology():
+def run_cellsim_topology():
     print_welcome_message()
 
     os.system( "killall -q controller" )
@@ -125,5 +126,19 @@ def start_cellsim_topology():
 
     net.stop()
 
+def upload_data( username ):
+    print "Uploading data to server...",
+    os.system( 'gzip --stdout /tmp/cellsim-stdout > /tmp/to-upload.gz' )
+    reply = requests.post( 'http://6829.keithw.org/cgi-bin/6829/upload-data',
+                           files={'contents': (username, open( '/tmp/to-upload.gz',
+                                                               'rb' ))} )
+    print "done. Got reply:"
+    print
+    print reply.text
+
 if __name__ == '__main__':
-    start_cellsim_topology()
+    if len(sys.argv) != 2:
+        print "Usage: sudo %s [username]" % sys.argv[ 0 ]
+    else:
+        run_cellsim_topology()
+        upload_data( sys.argv[ 1 ] )
